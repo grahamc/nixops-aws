@@ -41,7 +41,7 @@ for p in data["products"].keys():
             + ";};"
         )
 
-print "{"
+print("{")
 for instanceType in sorted(instanceTypes.keys()):
-    print instanceTypes[instanceType]
-print "}"
+    print(instanceTypes[instanceType])
+print("}")

@@ -268,9 +268,7 @@ class Route53RecordSetState(nixops.resources.ResourceState):
                         "Name": obj.domain_name,
                         "Type": obj.record_type,
                         "TTL": int(obj.ttl),
-                        "ResourceRecords": map(
-                            lambda rv: {"Value": rv}, obj.record_values
-                        ),
+                        "ResourceRecords": [{"Value": rv} for rv in obj.record_values],
                     },
                 },
             ]
