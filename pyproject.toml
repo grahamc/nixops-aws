@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "nixopsaws"
+name = "nixops_aws"
 version = "1.7"
 description = "NixOps AWS plugin"
 authors = ["adisbladis <adisbladis@gmail.com>"]
@@ -17,7 +17,7 @@ nose = "^1.3.7"
 mypy = "^0.770"
 
 [tool.poetry.plugins."nixops"]
-aws = "nixopsaws.plugin:load"
+aws = "nixops_aws.plugin:load"
 
 [build-system]
 requires = ["poetry>=0.12"]
