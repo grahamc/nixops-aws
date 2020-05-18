@@ -19,7 +19,7 @@ import nixops_aws.ec2_utils
 import nixops.known_hosts
 import datetime
 from typing import Dict, Tuple, Any, Union, List
-
+from nixops_aws.resources.ec2_common import EC2CommonState
 
 class EC2InstanceDisappeared(Exception):
     pass
@@ -96,7 +96,7 @@ class EC2Definition(MachineDefinition):
         )
 
 
-class EC2State(MachineState, nixops_aws.resources.ec2_common.EC2CommonState):
+class EC2State(MachineState, EC2CommonState):
     """State of an EC2 machine."""
 
     @classmethod
