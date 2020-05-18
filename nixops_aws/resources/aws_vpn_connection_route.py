@@ -9,10 +9,21 @@ import nixops_aws.ec2_utils
 from . import aws_vpn_connection
 from nixops.diff import Handler
 from nixops.state import StateDict
-
+from typing import Optional, Union
+from typing_extensions import Literal
+from nixops_aws.types import NixOpsRef
+class AWSVPNConnectionRouteOptions(nixops.resources.ResourceOptions):
+    # The IPv4 CIDR address block used for the destination match.
+    destinationCidrBlock: Optional[str]
+    # Name of the VPN connection route.
+    name: str
+    # The ID of the VPN connection.
+    vpnConnectionId: Union[str, NixOpsRef[Literal['aws-vpn-connection']]]
 
 class AWSVPNConnectionRouteDefinition(nixops.resources.ResourceDefinition):
     """Definition of a VPN connection route"""
+
+    config: AWSVPNConnectionRouteOptions
 
     @classmethod
     def get_type(cls):
@@ -26,7 +37,7 @@ class AWSVPNConnectionRouteDefinition(nixops.resources.ResourceDefinition):
         return "{0}".format(self.get_type())
 
 
-class AWSVPNConnectionRouteState(nixops.resources.DiffEngineResourceState, EC2CommonState):
+class AWSVPNConnectionRouteState(nixops.resources.DiffEngineResourceState[AWSVPNConnectionRouteDefinition], EC2CommonState):
     """State of a VPN connection route"""
 
     state = nixops.util.attr_property(
