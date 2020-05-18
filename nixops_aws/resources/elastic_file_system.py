@@ -24,12 +24,9 @@ class ElasticFileSystemDefinition(nixops.resources.ResourceDefinition):
     def get_resource_type(cls):
         return "elasticFileSystems"
 
-    def show_type(self):
-        return "{0} [{1}]".format(self.get_type(), self.region)
-
 
 class ElasticFileSystemState(
-    nixops.resources.ResourceState, ec2_common.EC2CommonState, efs_common.EFSCommonState
+    nixops.resources.ResourceState, efs_common.EFSCommonState
 ):
     """State of an AWS Elastic File System."""
 

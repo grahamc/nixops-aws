@@ -1,10 +1,19 @@
+from __future__ import annotations
 import boto3
 import mypy_boto3_efs
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
+import nixops.util
 import nixops_aws.ec2_utils
+import socket
+import getpass
 
+if TYPE_CHECKING:
+    import nixops.deployment
 
 class EFSCommonState:
+    depl: nixops.deployment.Deployment
+    name: str
+
     access_key_id: Optional[str]
     region: Optional[str]
     _client: Optional[mypy_boto3_efs.EFSClient] = None
@@ -32,3 +41,40 @@ class EFSCommonState:
         )
 
         return self._client
+
+    def get_common_tags(self):
+        tags = {
+            "CharonNetworkUUID": self.depl.uuid,
+            "CharonMachineName": self.name,
+            "CharonStateFile": "{0}@{1}:{2}".format(
+                getpass.getuser(), socket.gethostname(), self.depl._db.db_file
+            ),
+        }
+        if self.depl.name:
+            tags["CharonNetworkName"] = self.depl.name
+        return tags
+
+    def get_default_name_tag(self):
+        return "{0} [{1}]".format(self.depl.description, self.name)
+
+    def update_tags_using(self, updater, user_tags={}, check=False):
+        tags = {"Name": self.get_default_name_tag()}
+        tags.update(user_tags)
+        tags.update(self.get_common_tags())
+
+        if tags != self.tags or check:
+            updater(tags)
+            self.tags = tags
+
+    def update_tags(self, id, user_tags={}, check=False):
+        def updater(tags):
+            # FIXME: handle removing tags.
+            self._retry(lambda: self._get_client().create_tags([id], tags))
+
+        self.update_tags_using(updater, user_tags=user_tags, check=check)
+
+    def _retry(self, fun, **kwargs):
+        return nixops_aws.ec2_utils.retry(fun, logger=self, **kwargs)
+
+
+    tags = nixops.util.attr_property("ec2.tags", {}, "json")
