@@ -7,10 +7,28 @@ import nixops.util
 import nixops.resources
 from nixops_aws.resources.ec2_common import EC2CommonState
 import nixops_aws.ec2_utils
+from typing import Union, Dict
+from typing_extensions import Literal
+from nixops_aws.types import NixOpsRef
 
+class AWSVPNConnectionOptions(nixops.resources.ResourceOptions):
+    # The ID of the customer gateway.
+    customerGatewayId: Union[str, NixOpsRef[Literal['vpc-customer-gateway']]]
+    # Name of the AWS VPN connection.
+    name: str
+    # Indicates whether the VPN connection uses static routes only.
+    # Static routes must be used for devices that don't support BGP.
+    staticRoutesOnly: bool
+    # Tags assigned to the instance.  Each tag name can be at most
+    # 128 characters, and each tag value can be at most 256
+    # characters.  There can be at most 10 tags.
+    tags: Dict[str,str]
+    # The ID of the VPN gateway.
+    vpnGatewayId: Union[str, NixOpsRef[Literal['aws-vpn-gateway']]]
 
 class AWSVPNConnectionDefinition(nixops.resources.ResourceDefinition):
     """Definition of an AWS VPN connection."""
+    config: AWSVPNConnectionOptions
 
     @classmethod
     def get_type(cls):
@@ -24,7 +42,7 @@ class AWSVPNConnectionDefinition(nixops.resources.ResourceDefinition):
         return "{0}".format(self.get_type())
 
 
-class AWSVPNConnectionState(nixops.resources.DiffEngineResourceState, EC2CommonState):
+class AWSVPNConnectionState(nixops.resources.DiffEngineResourceState[AWSVPNConnectionDefinition], EC2CommonState):
     """State of a AWS VPN gateway."""
 
     state = nixops.util.attr_property(
