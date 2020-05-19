@@ -1,14 +1,14 @@
+from __future__ import annotations
 import socket
 import getpass
 
 import boto3
 import mypy_boto3_ec2
 import nixops.util
-import nixops.deployment
 import nixops.resources
 import nixops_aws.ec2_utils
 from nixops.state import StateDict
-from typing import Optional
+from typing import Optional, Callable, Any, Dict, Mapping
 
 class EC2CommonState:
     depl: nixops.deployment.Deployment
@@ -22,6 +22,7 @@ class EC2CommonState:
         return nixops_aws.ec2_utils.retry(fun, logger=self, **kwargs)
 
     tags = nixops.util.attr_property("ec2.tags", {}, "json")
+
 
     def get_common_tags(self):
         tags = {
@@ -58,9 +59,11 @@ class EC2CommonState:
         """
         Generic method to get a cached EC2 AWS client or create it.
         """
-        new_access_key_id = (
-            self.get_defn()["accessKeyId"] if self.depl.definitions else None
-        ) or nixops_aws.ec2_utils.get_access_key_id()
+        if isinstance(self, nixops.resources.DiffEngineResourceState) and self.depl.definitions is not None:
+            new_access_key_id = self.get_defn()["accessKeyId"]
+        else:
+            new_access_key_id = nixops_aws.ec2_utils.get_access_key_id()
+
         if new_access_key_id is not None:
             self.access_key_id = new_access_key_id
         if self.access_key_id is None:
