@@ -7,10 +7,27 @@ import nixops.util
 import nixops.resources
 from nixops_aws.resources.ec2_common import EC2CommonState
 import nixops_aws.ec2_utils
+from typing import Union, Dict
+from typing_extensions import Literal
+from nixops_aws.types import NixOpsRef
+
+class AWSVPNGatewayOptions(nixops.resources.ResourceOptions):
+    # Name of the AWS VPN gateway.
+    name: str
+    # Tags assigned to the instance.  Each tag name can be at most
+    # 128 characters, and each tag value can be at most 256
+    # characters.  There can be at most 10 tags.
+    tags: Dict[str,str]
+    # The ID of the VPC where the VPN gateway will be attached.
+    vpcId: Union[str, NixOpsRef[Literal['vpc']]]
+    # AWS availability zone.
+    zone: str
 
 
 class AWSVPNGatewayDefinition(nixops.resources.ResourceDefinition):
     """Definition of an AWS VPN gateway."""
+
+    config: AWSVPNGatewayOptions
 
     @classmethod
     def get_type(cls):
@@ -24,7 +41,7 @@ class AWSVPNGatewayDefinition(nixops.resources.ResourceDefinition):
         return "{0}".format(self.get_type())
 
 
-class AWSVPNGatewayState(nixops.resources.DiffEngineResourceState, EC2CommonState):
+class AWSVPNGatewayState(nixops.resources.DiffEngineResourceState[AWSVPNGatewayDefinition], EC2CommonState):
     """State of a AWS VPN gateway."""
 
     state = nixops.util.attr_property(

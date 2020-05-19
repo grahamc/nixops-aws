@@ -75,6 +75,7 @@ class VPCNetworkInterfaceAttachmentState(
         return "resources.vpcNetworkInterfaceAttachments."
 
     def create_after(self, resources, defn):
+        from nixops_aws.backends.ec2 import EC2State
         return {
             r
             for r in resources
