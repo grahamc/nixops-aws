@@ -119,6 +119,18 @@ def connect_vpc(region, access_key_id):
     return conn
 
 
+def connect_rds_boto3(region, access_key_id) -> "mypy_boto3_rds.RDSClient":
+    assert region
+    (access_key_id, secret_access_key) = fetch_aws_secret_key(access_key_id)
+    client = boto3.session.Session().client(
+        "rds",
+        region_name=region,
+        aws_access_key_id=access_key_id,
+        aws_secret_access_key=secret_access_key,
+    )
+    return client
+
+
 def get_access_key_id():
     return os.environ.get("EC2_ACCESS_KEY") or os.environ.get("AWS_ACCESS_KEY_ID")
 
